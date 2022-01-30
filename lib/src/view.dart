@@ -37,6 +37,10 @@ class View<T extends Content?> extends XmlElement {
     return [];
   }
 
+  List<XmlElement> produceImages(ViewManager vm, ListContent c) {
+    return [];
+  }
+
   static XmlElement? _findChild(XmlElement e, String tag) {
     return e.descendants.firstWhereOrNull(
         (test) => test is XmlElement && test.name.local == tag) as XmlElement?;
@@ -404,6 +408,43 @@ class ImgView extends View<ImageContent?> {
             pr.setAttribute('r:embed', relId);
             docRels.add(relId, rel);
             vm.docxManager.add(imagePath, DocxBinEntry(c.img));
+          }
+        }
+      }
+    }
+    return l;
+  }
+
+  @override
+  List<XmlElement> produceImages(ViewManager vm, ListContent? cs) {
+    List<XmlElement> l = [];
+    if (cs != null) {
+      for (var tc in cs.list) {
+        var c = tc as ImageContent;
+        XmlElement copy = this.accept(XmlCopyVisitor());
+        l.addAll(copy.children.cast<XmlElement>());
+
+        final pr = copy.descendants
+            .firstWhereOrNull((e) => e is XmlElement && e.name.local == 'blip');
+        if (pr != null) {
+          final idAttr = pr.getAttribute('r:embed');
+
+          final docRels = vm.docxManager
+              .getEntry(() => DocxRelsEntry(), 'word/_rels/document.xml.rels');
+          if (idAttr != null && docRels != null) {
+            final rel = docRels.getRel(idAttr);
+            if (rel != null) {
+              final base = path.basename(rel.target);
+              final ext = path.extension(base);
+              final imageId = docRels.nextImageId();
+              rel.target =
+                  path.join(path.dirname(rel.target), 'image$imageId$ext');
+              final imagePath = 'word/${rel.target}';
+              final relId = docRels.nextId();
+              pr.setAttribute('r:embed', relId);
+              docRels.add(relId, rel);
+              vm.docxManager.add(imagePath, DocxBinEntry(c.img));
+            }
           }
         }
       }

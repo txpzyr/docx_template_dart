@@ -2,9 +2,9 @@ library docx_view;
 
 import 'dart:collection';
 
-import 'package:docx_template/docx_template.dart';
-import 'package:docx_template/src/docx_entry.dart';
-import 'package:docx_template/src/template.dart';
+import 'package:hello/docx_template_dart/src/docx_entry.dart';
+import 'package:hello/docx_template_dart/src/model.dart';
+import 'package:hello/docx_template_dart/src/template.dart';
 import 'package:xml/xml.dart';
 import 'package:path/path.dart' as path;
 import 'package:collection/collection.dart' show IterableExtension;
@@ -166,7 +166,11 @@ class ViewManager {
     List<XmlElement> produced;
 
     if (c != null && c.containsKey(v.tag)) {
-      produced = v.produce(this, c[v.tag]);
+      if (c[v.tag] is ListContent) {
+        produced = v.produceImages(this, c[v.tag] as ListContent);
+      } else {
+        produced = v.produce(this, c[v.tag]);
+      }
     } else if (c != null && c.key == v.tag) {
       produced = v.produce(this, c);
     } else {

@@ -1,6 +1,7 @@
 import 'package:archive/archive.dart';
-import 'package:docx_template/src/model.dart';
-import 'package:docx_template/src/view_manager.dart';
+import 'package:hello/docx_template_dart/src/model.dart';
+import 'package:hello/docx_template_dart/src/view_manager.dart';
+
 import 'docx_entry.dart';
 
 class DocxTemplateException implements Exception {
